@@ -257,33 +257,49 @@ export default function Catalog() {
 
           {/* Mobile Category Filters (Horizontal Scrollbar above products on mobile) */}
           <div className="lg:hidden">
-            <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-thin px-1 scroll-smooth">
-              {CATEGORIES.map((cat) => {
-                const IconComponent = cat.icon;
-                const isSelected = selectedCategory === cat.id;
-                const count = categoryCounts[cat.id] || 0;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => handleCategorySelect(cat.id)}
-                    style={{ fontFamily: "'Outfit', sans-serif" }}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 border flex-shrink-0 cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#1752b0] text-white border-[#1752b0] shadow-md scale-[1.02]'
-                        : 'bg-white text-slate-700 border-slate-200/80 hover:bg-[#eef6fc] hover:text-[#1752b0] shadow-sm'
-                    }`}
-                  >
-                    <IconComponent className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-[#1752b0]'}`} />
-                    <span>{cat.name}</span>
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
-                    }`}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="flex items-center justify-between px-1 mb-2 text-xs font-bold text-[#0b2854]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <div className="flex items-center gap-1.5 text-[#1752b0]">
+                <Filter className="w-3.5 h-3.5" />
+                <span>Categorías</span>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-semibold text-[#1752b0] bg-[#eef6fc] border border-[#bce0f8] px-2.5 py-0.5 rounded-full shadow-xs">
+                <span>Desliza para ver más</span>
+                <ChevronRight className="w-3.5 h-3.5 text-[#1752b0] animate-pulse" />
+              </div>
+            </div>
+
+            <div className="relative">
+              {/* Fade gradient cue on right edge to show horizontal scrolling */}
+              <div className="absolute right-0 top-0 bottom-3 w-8 bg-gradient-to-l from-[#f2f8fc] via-[#f2f8fc]/80 to-transparent pointer-events-none z-10 rounded-r-xl" />
+
+              <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-thin px-1 scroll-smooth">
+                {CATEGORIES.map((cat) => {
+                  const IconComponent = cat.icon;
+                  const isSelected = selectedCategory === cat.id;
+                  const count = categoryCounts[cat.id] || 0;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => handleCategorySelect(cat.id)}
+                      style={{ fontFamily: "'Outfit', sans-serif" }}
+                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 border flex-shrink-0 cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#1752b0] text-white border-[#1752b0] shadow-md scale-[1.02]'
+                          : 'bg-white text-slate-700 border-slate-200/80 hover:bg-[#eef6fc] hover:text-[#1752b0] shadow-sm'
+                      }`}
+                    >
+                      <IconComponent className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-[#1752b0]'}`} />
+                      <span>{cat.name}</span>
+                      <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
