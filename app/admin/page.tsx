@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Session } from '@supabase/supabase-js';
 import { supabase, DbProduct } from '../lib/supabase';
 import { compressImage } from '../lib/compressImage';
 import { 
@@ -22,7 +23,14 @@ import {
   ExternalLink,
   ShieldCheck,
   Upload,
-  Snowflake
+  Snowflake,
+  Lock,
+  Mail,
+  LogOut,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  UserCheck
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -38,6 +46,18 @@ const CATEGORIES = [
 ];
 
 export default function AdminPage() {
+  // Auth Session States
+  const [session, setSession] = useState<Session | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
+  
+  // Login Form States
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loggingIn, setLoggingIn] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string>('');
+
+  // Products Data & UI States
   const [products, setProducts] = useState<DbProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -48,48 +68,7 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<DbProduct | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
-
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    try {
-      // 1. Comprimir la imagen en el cliente a formato WebP ligero (Max 800px, 75% calidad)
-      const { compressedFile, originalSizeKb, compressedSizeKb } = await compressImage(file, 800, 800, 0.75);
-
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.webp`;
-      
-      // 2. Subir imagen única comprimida a Supabase Storage
-      const { error } = await supabase.storage
-        .from('productos')
-        .upload(fileName, compressedFile, { 
-          contentType: 'image/webp', 
-          cacheControl: '31536000', 
-          upsert: true 
-        });
-
-      if (error) throw error;
-
-      const { data: publicUrlData } = supabase.storage
-        .from('productos')
-        .getPublicUrl(fileName);
-
-      if (publicUrlData?.publicUrl) {
-        // Reemplaza de forma estricta la única imagen del producto
-        setFormData((prev) => ({ ...prev, image: publicUrlData.publicUrl }));
-        showToast(`¡Imagen optimizada (${originalSizeKb} KB ➔ ${compressedSizeKb} KB WebP) y guardada!`);
-      }
-    } catch (err: any) {
-      console.error('Error uploading image:', err);
-      showToast(`Error al comprimir/subir imagen: ${err.message || 'Verifica que el bucket sea público'}`, 'error');
-    } finally {
-      setUploadingImage(false);
-      e.target.value = '';
-    }
-  };
 
   // Toast Notification State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -100,8 +79,103 @@ export default function AdminPage() {
     category: 'Mariscos',
     format: '500 grs',
     price: '$3.800',
-    image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80'
+    image: ''
   });
+
+  // Verify Auth Session on Mount
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setCheckingAuth(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setCheckingAuth(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Fetch products when session is active
+  useEffect(() => {
+    if (session) {
+      fetchProducts();
+    }
+  }, [session]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoggingIn(true);
+    setLoginError('');
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: loginEmail.trim(),
+        password: loginPassword,
+      });
+
+      if (error) throw error;
+      setSession(data.session);
+      showToast('¡Sesión iniciada correctamente!', 'success');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setLoginError(
+        err.message === 'Invalid login credentials' 
+          ? 'Correo electrónico o contraseña incorrectos. Revisa tus datos.' 
+          : (err.message || 'Error de autenticación. Intenta nuevamente.')
+      );
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    showToast('Sesión cerrada correctamente.', 'success');
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      // 1. Comprimir la imagen en el cliente a formato WebP ligero
+      const compressedBlob = await compressImage(file, 800, 800, 0.75);
+      
+      const fileExt = 'webp';
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+      const filePath = `productos/${fileName}`;
+
+      // 2. Subir directamente a Supabase Storage bucket 'productos'
+      const { error: uploadError } = await supabase.storage
+        .from('productos')
+        .upload(filePath, compressedBlob, {
+          contentType: 'image/webp',
+          upsert: true
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // 3. Obtener URL pública directa
+      const { data: { publicUrl } } = supabase.storage
+        .from('productos')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, image: publicUrl }));
+      showToast('¡Imagen optimizada en WebP y subida con éxito!');
+    } catch (err: any) {
+      console.error('Error uploading image:', err);
+      showToast(`Error al subir imagen: ${err.message || 'Verifica la conexión'}`, 'error');
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -117,22 +191,29 @@ export default function AdminPage() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching products:', error);
-        showToast('No se pudo conectar a la tabla de productos en Supabase', 'error');
-      } else if (data) {
-        setProducts(data as DbProduct[]);
-      }
-    } catch (err) {
-      console.error('Unexpected error:', err);
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (err: any) {
+      console.error('Error loading products:', err);
+      showToast('Error al cargar productos desde la base de datos', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  // Filter products by search and category
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = 
+      !searchQuery || 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.format && product.format.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesCategory = 
+      selectedCategory === 'Todos' || 
+      (product.category && product.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+
+    return matchesSearch && matchesCategory;
+  });
 
   // Open modal for creating new product
   const handleOpenCreateModal = () => {
@@ -142,7 +223,7 @@ export default function AdminPage() {
       category: 'Mariscos',
       format: '500 grs',
       price: '$',
-      image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80'
+      image: ''
     });
     setIsModalOpen(true);
   };
@@ -160,11 +241,11 @@ export default function AdminPage() {
     setIsModalOpen(true);
   };
 
-  // Save (Insert or Update) product
+  // Save product (Insert or Update)
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.price.trim()) {
-      showToast('Por favor completa el nombre y el precio.', 'error');
+    if (!formData.name.trim()) {
+      showToast('El nombre del producto es obligatorio', 'error');
       return;
     }
 
@@ -179,7 +260,7 @@ export default function AdminPage() {
             category: formData.category,
             format: formData.format.trim(),
             price: formData.price.trim(),
-            image: formData.image.trim() || 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80'
+            image: formData.image.trim()
           })
           .eq('id', editingProduct.id);
 
@@ -195,7 +276,7 @@ export default function AdminPage() {
               category: formData.category,
               format: formData.format.trim(),
               price: formData.price.trim(),
-              image: formData.image.trim() || 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80'
+              image: formData.image.trim()
             }
           ]);
 
@@ -207,7 +288,7 @@ export default function AdminPage() {
       fetchProducts();
     } catch (err: any) {
       console.error('Error saving product:', err);
-      showToast(`Error al guardar: ${err.message || 'Intenta de nuevo'}`, 'error');
+      showToast(`Error al guardar: ${err.message || 'Intenta nuevamente'}`, 'error');
     } finally {
       setSaving(false);
     }
@@ -222,8 +303,7 @@ export default function AdminPage() {
         .eq('id', id);
 
       if (error) throw error;
-
-      showToast('Producto eliminado del catálogo');
+      showToast('Producto eliminado correctamente');
       setDeleteConfirmId(null);
       fetchProducts();
     } catch (err: any) {
@@ -232,84 +312,250 @@ export default function AdminPage() {
     }
   };
 
-  // Filtered Products List
-  const filteredProducts = products.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.format.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'Todos' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // 1. Loading Screen while checking auth session
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-[#06172d] flex items-center justify-center p-4">
+        <div className="text-center space-y-3">
+          <RefreshCw className="w-10 h-10 text-sky-400 animate-spin mx-auto" />
+          <p className="text-slate-300 text-sm font-semibold">Verificando sesión de seguridad...</p>
+        </div>
+      </div>
+    );
+  }
 
+  // 2. Login Screen when NOT authenticated
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-[#06172d] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        
+        {/* Background glow effects */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#1752b0]/20 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 space-y-4 text-center">
+          <Link href="/" className="inline-block hover:scale-105 transition-transform">
+            <div className="relative w-20 h-20 mx-auto mb-2">
+              <Image
+                src="/IMAGENES/logo.png"
+                alt="Ice Austral Logo"
+                fill
+                className="object-contain drop-shadow-md"
+              />
+            </div>
+          </Link>
+
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Panel Administrativo
+            </h2>
+            <p className="text-slate-400 text-xs sm:text-sm mt-1">
+              Ice Austral Congelados • Acceso Privado
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+          <div className="bg-white/95 backdrop-blur-md py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-white/20 space-y-6">
+            
+            {/* Security Badge Banner */}
+            <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-blue-50 border border-blue-100 text-[#1752b0]">
+              <ShieldCheck className="w-5 h-5 flex-shrink-0" />
+              <span className="text-xs font-bold leading-tight">
+                Acceso restringido con autenticación SSL de Supabase.
+              </span>
+            </div>
+
+            {/* Login Error Notification */}
+            {loginError && (
+              <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-700 text-xs font-semibold animate-shake">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              
+              {/* Email Input */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700">
+                  Correo Electrónico
+                </label>
+                <div className="relative rounded-xl shadow-2xs">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    required
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="contacto@iceaustralcongelados.cl"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1752b0] focus:bg-white transition-all placeholder:text-slate-400"
+                  />
+                </div>
+              </div>
+
+              {/* Password Input */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700">
+                  Contraseña
+                </label>
+                <div className="relative rounded-xl shadow-2xs">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1752b0] focus:bg-white transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Login Button */}
+              <button
+                type="submit"
+                disabled={loggingIn}
+                className="w-full flex items-center justify-center gap-2 bg-[#1752b0] hover:bg-[#094bb5] active:scale-98 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50 mt-2"
+              >
+                {loggingIn ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Iniciando sesión...</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4" />
+                    <span>Ingresar al Panel</span>
+                  </>
+                )}
+              </button>
+
+            </form>
+
+            <div className="pt-2 text-center border-t border-slate-100">
+              <Link 
+                href="/" 
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#1752b0] transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Volver a la tienda web</span>
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Authenticated Admin Dashboard Panel
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24">
+    <div className="min-h-screen bg-slate-50 text-slate-800" style={{ fontFamily: "'Outfit', sans-serif" }}>
       
-      {/* Toast Alert Banner */}
+      {/* Toast Notification */}
       {toast && (
-        <div className={`fixed top-4 right-4 left-4 sm:left-auto z-50 max-w-md p-4 rounded-2xl shadow-xl border flex items-center gap-3 transition-all animate-bounce ${
-          toast.type === 'success' 
-            ? 'bg-emerald-600 text-white border-emerald-500' 
-            : 'bg-rose-600 text-white border-rose-500'
+        <div className={`fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border text-sm font-bold animate-bounce ${
+          toast.type === 'error'
+            ? 'bg-red-50 border-red-200 text-red-700'
+            : 'bg-emerald-50 border-emerald-200 text-emerald-800'
         }`}>
-          {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
-          <span className="font-semibold text-sm leading-snug">{toast.message}</span>
+          {toast.type === 'error' ? (
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          )}
+          <span>{toast.message}</span>
         </div>
       )}
 
-      {/* Top Navbar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      {/* Header Navigation */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
           
+          {/* Logo & Title */}
           <div className="flex items-center gap-3">
-            <Link 
-              href="/" 
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-              title="Volver a la tienda"
-            >
-              <ArrowLeft className="w-5 h-5" />
+            <Link href="/" className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 hover:scale-105 transition-transform">
+              <Image
+                src="/IMAGENES/logo.png"
+                alt="Ice Austral Logo"
+                fill
+                className="object-contain"
+              />
             </Link>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#1752b0] text-white flex items-center justify-center font-bold text-sm">
-                ICE
+            <div>
+              <div className="font-extrabold text-[#0b2854] text-base sm:text-lg leading-tight flex items-center gap-2">
+                <span>Panel Admin</span>
+                <span className="bg-blue-100 text-[#1752b0] text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
+                  Seguro
+                </span>
               </div>
-              <div>
-                <h1 className="font-bold text-base text-slate-900 leading-tight">Panel Administrador</h1>
-                <p className="text-[11px] text-slate-500 font-medium">Ice Austral Congelados</p>
-              </div>
+              <p className="text-slate-500 text-xs font-semibold hidden sm:block">
+                Gestión de productos y catálogo en tiempo real
+              </p>
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              onClick={fetchProducts}
-              className="p-2 text-slate-600 hover:text-[#1752b0] hover:bg-blue-50 rounded-xl transition-colors"
-              title="Actualizar datos"
-            >
-              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-[#1752b0]' : ''}`} />
-            </button>
+            
             <Link
               href="/"
               target="_blank"
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-[#1752b0] hover:underline"
+              className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 px-3 rounded-xl transition-colors"
             >
-              <span>Ver tienda</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden sm:inline">Ver Tienda</span>
             </Link>
+
             <button
               onClick={handleOpenCreateModal}
-              className="inline-flex items-center gap-1.5 bg-[#1752b0] hover:bg-[#0f3c85] active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 bg-[#1752b0] hover:bg-[#094bb5] active:scale-95 text-white text-xs sm:text-sm font-bold py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl shadow-xs transition-all cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Nuevo Producto</span>
             </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold py-2 sm:py-2.5 px-3 rounded-xl transition-colors cursor-pointer border border-red-100"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Salir</span>
+            </button>
+
           </div>
 
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+      {/* Main Admin Content Container */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
         
-        {/* Stats Summary Bar */}
+        {/* User Session Bar */}
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-700">
+            <UserCheck className="w-4 h-4 text-emerald-600" />
+            <span>Sesión iniciada como: <strong className="text-[#1752b0]">{session.user.email}</strong></span>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
+            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Autenticado
+            </span>
+          </div>
+        </div>
+
+        {/* Dashboard Quick Stats Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-2xs">
             <div className="text-slate-500 text-xs font-medium mb-1 flex items-center gap-1.5">
@@ -365,13 +611,13 @@ export default function AdminPage() {
             )}
           </div>
 
-          {/* Horizontal scrollable category pill tabs */}
+          {/* Category Pill Filters */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   selectedCategory === cat
                     ? 'bg-[#1752b0] text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -383,24 +629,6 @@ export default function AdminPage() {
           </div>
 
         </div>
-
-        {/* Setup Banner if Empty or Table not created */}
-        {!loading && products.length === 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center space-y-3">
-            <Sparkles className="w-8 h-8 text-[#1752b0] mx-auto" />
-            <h3 className="text-lg font-bold text-[#0b2854]">Aún no hay productos en tu base de datos Supabase</h3>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
-              Puedes agregar nuevos productos usando el botón <strong>"+ Nuevo Producto"</strong> o ejecutar el script <code>supabase_setup.sql</code> en el editor SQL de tu panel de Supabase para subir automáticamente todos los productos iniciales.
-            </p>
-            <button
-              onClick={handleOpenCreateModal}
-              className="inline-flex items-center gap-2 bg-[#1752b0] text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow-xs hover:bg-[#0f3c85] transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Crear mi primer producto</span>
-            </button>
-          </div>
-        )}
 
         {/* Product Cards List (Mobile-Optimized Clean Cards) */}
         {loading ? (
@@ -448,30 +676,46 @@ export default function AdminPage() {
                   </p>
                 </div>
 
-                {/* Price & Action Buttons */}
-                <div className="pt-3 border-t border-slate-100 mt-2 flex items-center justify-between gap-2">
-                  <div className="font-extrabold text-[#1752b0] text-base">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-2">
+                  <div className="text-[#1752b0] font-extrabold text-base">
                     {product.price}
                   </div>
 
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenEditModal(product)}
-                      className="p-2 text-slate-600 hover:text-[#1752b0] hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#1752b0] transition-colors cursor-pointer"
                       title="Editar producto"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => setDeleteConfirmId(product.id)}
-                      className="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                      title="Eliminar producto"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+
+                    {deleteConfirmId === product.id ? (
+                      <div className="flex items-center gap-1 bg-red-50 p-1 rounded-xl border border-red-200">
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="px-2 py-1 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700"
+                        >
+                          Sí
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="px-2 py-1 bg-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-300"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setDeleteConfirmId(product.id)}
+                        className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors cursor-pointer"
+                        title="Eliminar producto"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
-
               </div>
             ))}
           </div>
@@ -479,195 +723,163 @@ export default function AdminPage() {
 
       </main>
 
-      {/* Floating Action Button for Mobile */}
-      <button
-        onClick={handleOpenCreateModal}
-        className="sm:hidden fixed bottom-6 right-6 z-40 bg-[#1752b0] text-white p-4 rounded-full shadow-2xl active:scale-95 transition-transform flex items-center justify-center"
-        aria-label="Agregar Producto"
-      >
-        <Plus className="w-7 h-7" />
-      </button>
-
-      {/* Delete Confirmation Modal */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl text-center animate-in fade-in zoom-in duration-150">
-            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
-              <Trash2 className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-lg text-slate-900">¿Eliminar producto?</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Esta acción quitará el producto de la base de datos y ya no aparecerá en el catálogo público.
-            </p>
-            <div className="flex items-center gap-2 pt-2">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="w-1/2 py-2.5 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => handleDeleteProduct(deleteConfirmId)}
-                className="w-1/2 py-2.5 bg-rose-600 text-white font-bold text-xs rounded-xl hover:bg-rose-700 transition-colors shadow-xs"
-              >
-                Sí, eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create / Edit Form Modal */}
+      {/* Modal Form for Create / Edit Product */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in duration-200 max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h2 className="font-extrabold text-base text-slate-900">
-                {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
-              </h2>
-              <button 
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2 text-[#0b2854]">
+                <Package className="w-5 h-5 text-[#1752b0]" />
+                <h2 className="text-lg font-bold">
+                  {editingProduct ? 'Editar Producto' : 'Crear Nuevo Producto'}
+                </h2>
+              </div>
+              <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/60"
+                className="p-1 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={handleSaveProduct} className="p-4 sm:p-6 space-y-4 overflow-y-auto">
+            <form onSubmit={handleSaveProduct} className="space-y-4">
               
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+              {/* Product Name */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700">
                   Nombre del Producto *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ej. Salmón Salar con piel 1 kg"
+                  placeholder="ej. Salmón Salar con piel 1 kg"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#1752b0] focus:bg-white focus:outline-none"
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1752b0] focus:bg-white"
                 />
               </div>
 
+              {/* Category & Format Grid */}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Categoría *
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Categoría
                   </label>
                   <select
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-[#1752b0] focus:bg-white focus:outline-none"
+                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1752b0] focus:bg-white"
                   >
-                    {CATEGORIES.filter((c) => c !== 'Todos').map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                    {CATEGORIES.filter(c => c !== 'Todos').map(c => (
+                      <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Formato / Peso *
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Formato
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="Ej. 1 kg, 500 grs, 10 un."
+                    placeholder="ej. 1 kg / 500 grs / 10 un."
                     value={formData.format}
-                    onChange={(e) => setFormData({ ...formData, format: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#1752b0] focus:bg-white focus:outline-none"
+                    onChange={(e) => setFormData(prev => ({ ...prev, format: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1752b0] focus:bg-white"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Precio (Formato $X.XXX) *
+              {/* Price */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700">
+                  Precio (CLP)
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ej. $14.900"
+                  placeholder="ej. $14.900"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-extrabold text-[#1752b0] focus:ring-2 focus:ring-[#1752b0] focus:bg-white focus:outline-none"
+                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1752b0] focus:bg-white"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Imagen del Producto
+              {/* Product Image File Upload & WebP Auto-Compression */}
+              <div className="space-y-2 pt-1 border-t border-slate-100">
+                <label className="block text-xs font-bold text-slate-700">
+                  Imagen del Producto (Compresión WebP automática)
                 </label>
                 
-                {/* Upload File Input Button */}
-                <div className="flex flex-col sm:flex-row gap-2 mb-2">
-                  <label className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-[#1752b0] font-bold text-xs py-2.5 px-3 rounded-xl cursor-pointer transition-colors shadow-2xs">
-                    <Upload className={`w-4 h-4 ${uploadingImage ? 'animate-bounce' : ''}`} />
-                    <span>{uploadingImage ? 'Subiendo imagen a Storage...' : 'Subir desde mi celular / PC'}</span>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleFileUpload} 
+                <div className="flex items-center gap-3">
+                  <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer transition-colors border border-slate-200">
+                    {uploadingImage ? (
+                      <RefreshCw className="w-4 h-4 animate-spin text-[#1752b0]" />
+                    ) : (
+                      <Upload className="w-4 h-4 text-[#1752b0]" />
+                    )}
+                    <span>{uploadingImage ? 'Comprimiendo...' : 'Subir desde equipo'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
                       disabled={uploadingImage}
-                      className="hidden" 
+                      className="hidden"
                     />
                   </label>
+
+                  <span className="text-xs text-slate-400 font-medium">o ingresa una URL:</span>
                 </div>
 
-                <div className="text-[11px] text-slate-400 font-medium mb-1">
-                  O pega directamente la URL de la imagen:
-                </div>
                 <input
-                  type="url"
-                  placeholder="https://..."
+                  type="text"
+                  placeholder="URL de la imagen (opcional)"
                   value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-[#1752b0] focus:bg-white focus:outline-none"
+                  onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#1752b0] focus:bg-white"
                 />
-              </div>
 
-              {/* Image Preview Thumbnail */}
-              {formData.image && (
-                <div className="flex items-center gap-3 p-2 bg-slate-50 border border-slate-200 rounded-xl">
-                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-slate-200 flex-shrink-0">
+                {/* Preview Thumbnail */}
+                {formData.image && (
+                  <div className="relative w-20 h-20 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 mt-2">
                     <Image
                       src={formData.image}
                       alt="Vista previa"
                       fill
                       className="object-cover"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                      className="absolute top-1 right-1 bg-red-600 text-white p-0.5 rounded-md hover:bg-red-700"
+                      title="Quitar imagen"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                  <div className="text-xs text-slate-500 font-medium truncate">
-                    Vista previa de imagen seleccionada
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              {/* Form Actions */}
-              <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+              {/* Modal Buttons */}
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/3 py-3 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors"
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="w-2/3 py-3 bg-[#1752b0] hover:bg-[#0f3c85] text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  disabled={saving || uploadingImage}
+                  className="px-5 py-2.5 bg-[#1752b0] hover:bg-[#094bb5] active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs transition-all disabled:opacity-50 flex items-center gap-2"
                 >
-                  {saving ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Guardando...</span>
-                    </>
-                  ) : (
-                    <span>{editingProduct ? 'Guardar Cambios' : 'Crear Producto'}</span>
-                  )}
+                  {saving && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{editingProduct ? 'Guardar Cambios' : 'Crear Producto'}</span>
                 </button>
               </div>
 
