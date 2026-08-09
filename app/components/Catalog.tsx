@@ -212,8 +212,18 @@ export default function Catalog() {
         </div>
 
         {/* MINIMAL ULTRA-CLEAN HORIZONTAL CATEGORY SCROLLER FOR MOBILE */}
-        <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 no-scrollbar">
-          {CATEGORY_ITEMS.map((item) => {
+        <div className="lg:hidden space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 px-1" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <span className="flex items-center gap-1.5 text-[#0b2854]">
+              <Filter className="w-3.5 h-3.5 text-[#1752b0]" /> Categorías
+            </span>
+            <span className="flex items-center gap-1 text-[#1752b0] font-extrabold animate-pulse">
+              Desliza 👉
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 no-scrollbar">
+            {CATEGORY_ITEMS.map((item) => {
             const IconComponent = item.icon;
             const isSelected = selectedCategory === item.key;
             const count = getCategoryCount(item.key);
@@ -239,6 +249,7 @@ export default function Catalog() {
               </button>
             );
           })}
+          </div>
         </div>
 
         {/* Main Content Layout: Desktop Sidebar + Products Grid */}
