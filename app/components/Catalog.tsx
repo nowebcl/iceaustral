@@ -167,21 +167,21 @@ export default function Catalog() {
   };
 
   return (
-    <section id="catalogo" className="py-12 sm:py-20 bg-gradient-to-b from-[#f2f8fc] via-white to-[#f2f8fc] relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <section id="catalogo" className="py-10 sm:py-20 bg-gradient-to-b from-[#f2f8fc] via-white to-[#f2f8fc] relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
         {/* Title Header matching exact Hero typography */}
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-[600] text-[#1752b0] tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <div className="text-center space-y-1.5">
+          <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-[600] text-[#1752b0] tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
             Catálogo de productos
           </h2>
           
           <p className="text-slate-500 font-bold text-xs sm:text-sm">
-            (Imágenes referenciales) — Mostrando {filteredProducts.length} productos
+            (Imágenes referenciales) — {filteredProducts.length} productos
           </p>
 
           {/* Snowflake Divider Line */}
-          <div className="flex items-center justify-center gap-3 text-[#94c3e8] pt-1">
+          <div className="flex items-center justify-center gap-3 text-[#94c3e8] pt-0.5">
             <span className="w-12 sm:w-16 h-[1.5px] bg-[#bce0f8]" />
             <Snowflake className="w-4 h-4 text-[#1752b0]" />
             <span className="w-12 sm:w-16 h-[1.5px] bg-[#bce0f8]" />
@@ -190,19 +190,19 @@ export default function Catalog() {
 
         {/* Global Search Input Box */}
         <div className="max-w-2xl mx-auto">
-          <div className="relative shadow-sm rounded-2xl">
-            <Search className="w-5 h-5 text-[#1752b0] absolute left-4 top-1/2 -translate-y-1/2" />
+          <div className="relative shadow-2xs rounded-2xl">
+            <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#1752b0] absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Buscar productos (ej. Salmón, Camarón, 1 kg, Frutilla)..."
+              placeholder="Buscar (ej. Salmón, Camarón, 1 kg, Frutilla)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-10 py-3.5 bg-white border-2 border-[#d0e5f7] focus:border-[#1752b0] rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all placeholder:text-slate-400"
+              className="w-full pl-10 sm:pl-12 pr-9 sm:pr-10 py-3 bg-white border border-[#d0e5f7] focus:border-[#1752b0] rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-3 focus:ring-blue-100 transition-all placeholder:text-slate-400"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
                 aria-label="Limpiar búsqueda"
               >
                 <X className="w-4 h-4" />
@@ -211,17 +211,47 @@ export default function Catalog() {
           </div>
         </div>
 
-        {/* Main Content Layout: Sidebar Categories + Products Grid */}
+        {/* MINIMAL ULTRA-CLEAN HORIZONTAL CATEGORY SCROLLER FOR MOBILE */}
+        <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 no-scrollbar">
+          {CATEGORY_ITEMS.map((item) => {
+            const IconComponent = item.icon;
+            const isSelected = selectedCategory === item.key;
+            const count = getCategoryCount(item.key);
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => setSelectedCategory(item.key)}
+                style={{ fontFamily: "'Outfit', sans-serif" }}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#1752b0] text-white shadow-xs scale-98'
+                    : 'bg-white text-[#173a6e] border border-slate-200/90 hover:bg-slate-50'
+                }`}
+              >
+                <IconComponent className="w-3.5 h-3.5" />
+                <span>{item.label}</span>
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
+                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Main Content Layout: Desktop Sidebar + Products Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Categories Sidebar / Top Bar on Mobile */}
-          <div className="lg:col-span-4 bg-white border border-slate-200/90 rounded-[28px] p-5 shadow-xs">
+          {/* Categories Sidebar (DESKTOP ONLY lg:block) */}
+          <div className="hidden lg:block lg:col-span-4 bg-white border border-slate-200/90 rounded-[28px] p-5 shadow-xs">
             <div className="flex items-center gap-2.5 mb-4 text-[#0b2854] font-bold text-lg border-b border-slate-100 pb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
               <Filter className="w-5 h-5 text-[#1752b0]" />
               <span>Categorías</span>
             </div>
 
-            {/* List of categories matching the screenshot design */}
+            {/* List of categories for desktop */}
             <div className="space-y-2">
               {CATEGORY_ITEMS.map((item) => {
                 const IconComponent = item.icon;
@@ -264,10 +294,10 @@ export default function Catalog() {
           </div>
 
           {/* Products Grid Column */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-6">
             
             {currentProducts.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3">
+              <div className="bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-3">
                 <Search className="w-10 h-10 text-slate-300 mx-auto" />
                 <h3 className="text-lg font-bold text-[#0b2854]">No encontramos productos</h3>
                 <p className="text-slate-500 text-xs sm:text-sm">
@@ -281,15 +311,15 @@ export default function Catalog() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-6">
                 {currentProducts.map((product) => (
                   <div
                     key={product.id}
                     style={{ fontFamily: "'Outfit', sans-serif" }}
-                    className="bg-white rounded-[20px] border border-slate-200/80 p-3.5 sm:p-4 text-center shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
+                    className="bg-white rounded-[20px] border border-slate-200/80 p-3 sm:p-4 text-center shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
                   >
                     <div>
-                      <div className="relative w-full aspect-square bg-[#ebf5fc] rounded-[14px] overflow-hidden mb-3.5 flex items-center justify-center">
+                      <div className="relative w-full aspect-square bg-[#ebf5fc] rounded-[14px] overflow-hidden mb-2.5 sm:mb-3.5 flex items-center justify-center">
                         <Image
                           src={product.image}
                           alt={product.name}
@@ -299,17 +329,17 @@ export default function Catalog() {
                         />
                       </div>
 
-                      <h3 className="text-[#0b2854] font-bold text-sm sm:text-base leading-tight mb-1 line-clamp-2">
+                      <h3 className="text-[#0b2854] font-bold text-xs sm:text-base leading-tight mb-1 line-clamp-2">
                         {product.name}
                       </h3>
 
-                      <p className="text-slate-500 font-medium text-xs sm:text-sm mb-2">
+                      <p className="text-slate-500 font-medium text-[11px] sm:text-sm mb-1.5 sm:mb-2">
                         {product.format}
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-100 mt-2">
-                      <div className="text-[#1752b0] font-[800] text-lg sm:text-xl mb-2">
+                    <div className="pt-2 border-t border-slate-100 mt-1">
+                      <div className="text-[#1752b0] font-[800] text-base sm:text-xl mb-1.5 sm:mb-2">
                         {product.price}
                       </div>
 
@@ -317,10 +347,10 @@ export default function Catalog() {
                         href={getProductWhatsappUrl(product)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full inline-flex items-center justify-center gap-1.5 bg-[#1752b0] hover:bg-[#094bb5] active:scale-95 text-white py-2 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-xs"
+                        className="w-full inline-flex items-center justify-center gap-1.5 bg-[#1752b0] hover:bg-[#094bb5] active:scale-95 text-white py-2 px-2.5 sm:px-3 rounded-xl font-bold text-[11px] sm:text-sm transition-all shadow-xs"
                       >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>Pedir por WhatsApp</span>
+                        <MessageCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">Pedir por WhatsApp</span>
                       </a>
                     </div>
                   </div>
@@ -330,7 +360,7 @@ export default function Catalog() {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-4">
+              <div className="flex items-center justify-center gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
