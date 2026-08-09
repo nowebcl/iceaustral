@@ -2,7 +2,23 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
-import { Search, MessageCircle, ChevronLeft, ChevronRight, Snowflake } from 'lucide-react';
+import { 
+  Search, 
+  MessageCircle, 
+  ChevronLeft, 
+  ChevronRight, 
+  Snowflake,
+  Filter,
+  LayoutGrid,
+  Fish,
+  Apple,
+  UtensilsCrossed,
+  Pizza,
+  ChefHat,
+  CupSoda,
+  X
+} from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export interface ProductItem {
   id: string;
@@ -38,81 +54,30 @@ const ALL_PRODUCTS: ProductItem[] = [
   { id: 'mar-19', name: 'Camarón ecuatoriano crudo pelado 1 kg', category: 'Mariscos', format: '1 kg', price: '$10.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
   { id: 'mar-20', name: 'Camarón apanado 500 g', category: 'Mariscos', format: '500 grs', price: '$7.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
   { id: 'mar-21', name: 'Ostiones 10 un.', category: 'Mariscos', format: '10 un.', price: '$8.700', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-22', name: 'Choritos en salsa de ajo/mantequilla 450 g', category: 'Mariscos', format: '450 grs', price: '$1.500', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-23', name: 'Anilla de calamar 1 kg', category: 'Mariscos', format: '1 kg', price: '$8.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-24', name: 'Pulpo en conserva 1 L', category: 'Mariscos', format: '1 L', price: '$19.800', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-
-  // Page 3 & 4 (Frutas y Verduras)
-  { id: 'fru-1', name: 'Surtido de pimentón 1 kg (Minuto Verde)', category: 'Verduras', format: '1 kg', price: '$3.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-2', name: 'Choclo grano 500 g (Frutos del Maipo)', category: 'Verduras', format: '500 grs', price: '$2.090', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-3', name: 'Choclo grano 1 kg (Minuto Verde)', category: 'Verduras', format: '1 kg', price: '$3.790', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-4', name: 'Choclo trozo 180 g (Minuto Verde)', category: 'Verduras', format: '180 grs', price: '$1.290', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-5', name: 'Pasta de choclo 1 kg (Minuto Verde)', category: 'Verduras', format: '1 kg', price: '$4.500', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-6', name: 'Habas 500 g (Minuto Verde)', category: 'Verduras', format: '500 grs', price: '$2.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-7', name: 'Primavera 200 g (Minuto Verde)', category: 'Verduras', format: '200 grs', price: '$990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-8', name: 'Primavera 500 g (Minuto Verde)', category: 'Verduras', format: '500 grs', price: '$1.790', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-9', name: 'Sofrito 150 g (Frutos del Maipo)', category: 'Verduras', format: '150 grs', price: '$940', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-10', name: 'Sofrito con ajo 500 g (Minuto Verde)', category: 'Verduras', format: '500 grs', price: '$2.690', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-11', name: 'Poroto verde 500 g (Minuto Verde)', category: 'Verduras', format: '500 grs', price: '$3.200', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-12', name: 'Mix pimentón 150 g (Minuto Verde)', category: 'Verduras', format: '150 grs', price: '$990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-13', name: 'Salteado Chapsui 400 g (Minuto Verde)', category: 'Verduras', format: '400 grs', price: '$2.190', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-14', name: 'Arvejas 1 kg (Minuto Verde)', category: 'Verduras', format: '1 kg', price: '$3.290', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-15', name: 'Arvejas 500 g (Minuto Verde)', category: 'Verduras', format: '500 grs', price: '$1.890', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-16', name: 'Zapallo en cubos 500 g (Minuto Verde)', category: 'Verduras', format: '500 grs', price: '$1.690', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-
-  // Page 5 (Frutas)
   { id: 'fru-17', name: 'Frutilla 500 g (Minuto Verde)', category: 'Frutas', format: '500 grs', price: '$3.690', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-18', name: 'Mix porotos granados 500 g (Minuto Verde)', category: 'Verduras', format: '500 grs', price: '$2.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
   { id: 'fru-19', name: 'Frambuesas 400 g (Minuto Verde)', category: 'Frutas', format: '400 grs', price: '$5.590', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-20', name: 'Cebolla picada 250 g (Minuto Verde)', category: 'Verduras', format: '250 grs', price: '$1.290', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-21', name: 'Arándanos 400 g (Minuto Verde)', category: 'Frutas', format: '400 grs', price: '$3.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-22', name: 'Frutos del bosque 400 g (Minuto Verde)', category: 'Frutas', format: '400 grs', price: '$3.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-23', name: 'Mango en trozos 500 g (Minuto Verde)', category: 'Frutas', format: '500 grs', price: '$3.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-24', name: 'Piña en trozos 500 g (Minuto Verde)', category: 'Frutas', format: '500 grs', price: '$3.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-25', name: 'Smoothie Red Antiox 500 g (Minuto Verde)', category: 'Frutas', format: '500 grs', price: '$4.290', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-26', name: 'Smoothie Pink Punch 500 g (Minuto Verde)', category: 'Frutas', format: '500 grs', price: '$4.290', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-27', name: 'Frambuesa IQF entera 1 kg', category: 'Frutas', format: '1 kg', price: '$7.500', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-28', name: 'Frambuesa semi-entera 1 kg', category: 'Frutas', format: '1 kg', price: '$6.500', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-
-  // Page 6 (Carnes & Hamburguesas)
-  { id: 'car-1', name: 'Hamburguesas vegetales 100 g', category: 'Carnes', format: '100 grs', price: '$850', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-2', name: 'Vegan Burger 100 g', category: 'Carnes', format: '100 grs', price: '$1.190', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-3', name: 'Vegan Crispy 120 g', category: 'Carnes', format: '120 grs', price: '$1.290', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-4', name: 'Molida de vacuno 250 g (Karmac)', category: 'Carnes', format: '250 grs', price: '$2.390', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-5', name: 'Hamburguesa 100 g (Llanquihue / La Crianza)', category: 'Carnes', format: '100 grs', price: '$990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
   { id: 'car-6', name: 'Hamburguesas de vacuno 4 un.', category: 'Carnes', format: '1 kg', price: '$6.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-7', name: 'Nuggets 275 g (Super Pollo)', category: 'Carnes', format: '275 grs', price: '$1.390', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-8', name: 'Escalopa de vacuno (Receta del Abuelo)', category: 'Carnes', format: '1 un.', price: '$1.200', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-9', name: 'Suprema de pollo (Receta del Abuelo)', category: 'Carnes', format: '1 un.', price: '$1.150', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'prep-1', name: 'Pizzas La Cabaña 470 g (Jamón/Queso)', category: 'Comidas', format: '470 grs', price: '$4.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'prep-2', name: 'Empanadas preparadas 10 un.', category: 'Comidas', format: '10 un.', price: '$3.950', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-
-  // Page 7 (Papas & Masas)
   { id: 'pap-1', name: 'Papas prefritas 1 kg (Minuto Verde)', category: 'Papas & Masas', format: '1 kg', price: '$3.300', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-2', name: 'Papas gajo horneables 700 g (Minuto Verde)', category: 'Papas & Masas', format: '700 grs', price: '$2.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-3', name: 'Papas prefritas 12 mm 2,5 kg (A&F)', category: 'Papas & Masas', format: '2,5 kg', price: '$6.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-4', name: 'Papas Loop 800 g (Minuto Verde)', category: 'Papas & Masas', format: '800 grs', price: '$4.590', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-5', name: 'Papas prefritas 11 mm 500 g (Alim Chile)', category: 'Papas & Masas', format: '500 grs', price: '$1.690', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-6', name: 'Papas duquesas 1 kg (Minuto Verde)', category: 'Papas & Masas', format: '1 kg', price: '$3.990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-7', name: 'Papas prefritas finas 800 g (Minuto Verde)', category: 'Papas & Masas', format: '800 grs', price: '$3.100', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-8', name: 'Arrollado primavera / Empanadas 10 un.', category: 'Papas & Masas', format: '10 un.', price: '$2.890', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-9', name: 'Sopapillas 50 g (10 un. Alim Chile)', category: 'Papas & Masas', format: '500 grs', price: '$2.690', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'beb-1', name: 'Jugo Jumex 1 L (Durazno / Piña)', category: 'Bebidas', format: '1 L', price: '$1.090', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'beb-2', name: 'Suerox Blue 630 ml', category: 'Bebidas', format: '630 ml', price: '$2.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'beb-3', name: 'Agua 500 ml (Con / Sin gas)', category: 'Bebidas', format: '500 ml', price: '$690', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-
-  // Page 8 (Bebidas)
   { id: 'beb-4', name: 'Red Bull / Monster Zero', category: 'Bebidas', format: '250 ml / 473 ml', price: '$1.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'beb-5', name: 'Gaseosas en lata/botella (Bilz, Coca-Cola, Kem, Pap, Sprite)', category: 'Bebidas', format: 'Lata / Botella', price: '$990', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
 ];
 
 const ITEMS_PER_PAGE = 12;
 
-import { supabase } from '../lib/supabase';
+const CATEGORY_ITEMS = [
+  { id: 'todos', label: 'Todos los Productos', key: 'Todos', icon: LayoutGrid },
+  { id: 'mar', label: 'Productos del Mar', key: 'Productos del Mar', icon: Fish },
+  { id: 'fru', label: 'Frutas y Verduras', key: 'Frutas y Verduras', icon: Apple },
+  { id: 'car', label: 'Carnes y Hamburguesas', key: 'Carnes y Hamburguesas', icon: UtensilsCrossed },
+  { id: 'pre', label: 'Comidas Preparadas', key: 'Comidas Preparadas', icon: Pizza },
+  { id: 'pap', label: 'Papas y Masas', key: 'Papas y Masas', icon: ChefHat },
+  { id: 'beb', label: 'Bebidas y Jugos', key: 'Bebidas y Jugos', icon: CupSoda },
+];
 
 export default function Catalog() {
   const [productsList, setProductsList] = useState<ProductItem[]>(ALL_PRODUCTS);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
 
   const whatsappNumber = '56940500068';
 
@@ -130,11 +95,61 @@ export default function Catalog() {
     loadProducts();
   }, []);
 
-  const totalPages = Math.ceil(productsList.length / ITEMS_PER_PAGE) || 1;
+  // Filter products by search and selected category
+  const filteredProducts = useMemo(() => {
+    return productsList.filter((item) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch = !q || 
+                            item.name.toLowerCase().includes(q) || 
+                            item.format.toLowerCase().includes(q) || 
+                            item.category.toLowerCase().includes(q);
+      
+      let matchesCategory = true;
+      const cat = item.category?.toLowerCase() || '';
 
-  // Derive current products slice directly without stale memoization
+      if (selectedCategory === 'Productos del Mar') {
+        matchesCategory = cat.includes('mariscos') || cat.includes('pescados');
+      } else if (selectedCategory === 'Frutas y Verduras') {
+        matchesCategory = cat.includes('frutas') || cat.includes('verduras');
+      } else if (selectedCategory === 'Carnes y Hamburguesas') {
+        matchesCategory = cat.includes('carnes');
+      } else if (selectedCategory === 'Comidas Preparadas') {
+        matchesCategory = cat.includes('comidas') || cat.includes('preparados');
+      } else if (selectedCategory === 'Papas y Masas') {
+        matchesCategory = cat.includes('papas');
+      } else if (selectedCategory === 'Bebidas y Jugos') {
+        matchesCategory = cat.includes('bebidas');
+      }
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [productsList, searchQuery, selectedCategory]);
+
+  // Reset pagination on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
+
+  // Compute category item count
+  const getCategoryCount = (key: string) => {
+    if (key === 'Todos') return productsList.length;
+    return productsList.filter((item) => {
+      const cat = item.category?.toLowerCase() || '';
+      if (key === 'Productos del Mar') return cat.includes('mariscos') || cat.includes('pescados');
+      if (key === 'Frutas y Verduras') return cat.includes('frutas') || cat.includes('verduras');
+      if (key === 'Carnes y Hamburguesas') return cat.includes('carnes');
+      if (key === 'Comidas Preparadas') return cat.includes('comidas') || cat.includes('preparados');
+      if (key === 'Papas y Masas') return cat.includes('papas');
+      if (key === 'Bebidas y Jugos') return cat.includes('bebidas');
+      return false;
+    }).length;
+  };
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+
+  // Slice paginated items
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentProducts = productsList.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  const currentProducts = filteredProducts.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -152,115 +167,213 @@ export default function Catalog() {
   };
 
   return (
-    <section id="catalogo" className="py-16 sm:py-24 bg-gradient-to-b from-[#f2f8fc] via-white to-[#f2f8fc] relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="catalogo" className="py-12 sm:py-20 bg-gradient-to-b from-[#f2f8fc] via-white to-[#f2f8fc] relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
-        {/* Title Header matching exact Hero typography in deep vivid blue but thinner */}
-        <div className="text-center space-y-2 mb-10">
+        {/* Title Header matching exact Hero typography */}
+        <div className="text-center space-y-2">
           <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-[600] text-[#1752b0] tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
             Catálogo de productos
           </h2>
           
           <p className="text-slate-500 font-bold text-xs sm:text-sm">
-            (Imágenes referenciales) — Página {currentPage} de {totalPages}
+            (Imágenes referenciales) — Mostrando {filteredProducts.length} productos
           </p>
 
-          {/* Subtle Snowflake Divider Line (Exact match to screenshot: — ❄ —) */}
-          <div className="flex items-center justify-center gap-3 text-[#94c3e8] pt-2">
+          {/* Snowflake Divider Line */}
+          <div className="flex items-center justify-center gap-3 text-[#94c3e8] pt-1">
             <span className="w-12 sm:w-16 h-[1.5px] bg-[#bce0f8]" />
             <Snowflake className="w-4 h-4 text-[#1752b0]" />
             <span className="w-12 sm:w-16 h-[1.5px] bg-[#bce0f8]" />
           </div>
         </div>
 
-        {/* Product Cards Grid - 12 items per page matching screenshot layout */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {currentProducts.map((product) => (
-            <div
-              key={product.id}
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-              className="bg-white rounded-[20px] border border-slate-200/80 p-3.5 sm:p-4 text-center shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
-            >
-              <div>
-                <div className="relative w-full aspect-square bg-[#ebf5fc] rounded-[14px] overflow-hidden mb-3.5 flex items-center justify-center">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-
-                <h3 className="text-[#0b2854] font-bold text-sm sm:text-base leading-tight mb-1 line-clamp-2">
-                  {product.name}
-                </h3>
-
-                <p className="text-slate-500 font-medium text-xs sm:text-sm mb-2">
-                  {product.format}
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-slate-100 mt-2">
-                <div className="text-[#1752b0] font-[800] text-lg sm:text-xl mb-2">
-                  {product.price}
-                </div>
-
-                <a
-                  href={getProductWhatsappUrl(product)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-1.5 bg-[#1752b0] hover:bg-[#094bb5] active:scale-95 text-white py-2 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-sm"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>Pedir por WhatsApp</span>
-                </a>
-              </div>
-            </div>
-          ))}
+        {/* Global Search Input Box */}
+        <div className="max-w-2xl mx-auto">
+          <div className="relative shadow-sm rounded-2xl">
+            <Search className="w-5 h-5 text-[#1752b0] absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Buscar productos (ej. Salmón, Camarón, 1 kg, Frutilla)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-10 py-3.5 bg-white border-2 border-[#d0e5f7] focus:border-[#1752b0] rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all placeholder:text-slate-400"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                aria-label="Limpiar búsqueda"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-12">
-            <button
-              type="button"
-              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 disabled:opacity-40 hover:bg-slate-50 transition-colors cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
+        {/* Main Content Layout: Sidebar Categories + Products Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Categories Sidebar / Top Bar on Mobile */}
+          <div className="lg:col-span-4 bg-white border border-slate-200/90 rounded-[28px] p-5 shadow-xs">
+            <div className="flex items-center gap-2.5 mb-4 text-[#0b2854] font-bold text-lg border-b border-slate-100 pb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <Filter className="w-5 h-5 text-[#1752b0]" />
+              <span>Categorías</span>
+            </div>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-              <button
-                type="button"
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
-                style={{ fontFamily: "'Outfit', sans-serif" }}
-                className={`w-9 h-9 flex items-center justify-center rounded-xl font-bold text-sm transition-all cursor-pointer ${
-                  currentPage === pageNum
-                    ? 'bg-[#1752b0] text-white shadow-sm scale-105'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                {pageNum}
-              </button>
-            ))}
+            {/* List of categories matching the screenshot design */}
+            <div className="space-y-2">
+              {CATEGORY_ITEMS.map((item) => {
+                const IconComponent = item.icon;
+                const isSelected = selectedCategory === item.key;
+                const count = getCategoryCount(item.key);
 
-            <button
-              type="button"
-              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 disabled:opacity-40 hover:bg-slate-50 transition-colors cursor-pointer"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedCategory(item.key)}
+                    style={{ fontFamily: "'Outfit', sans-serif" }}
+                    className={`w-full flex items-center justify-between p-3 sm:p-3.5 rounded-2xl font-bold text-sm transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#1752b0] text-white shadow-md border border-[#124290] scale-[1.01]'
+                        : 'bg-[#f8fafc] text-[#173a6e] hover:bg-[#edf4fb] border border-slate-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-xl flex items-center justify-center ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-blue-100/60 text-[#1752b0]'
+                      }`}>
+                        <IconComponent className="w-4 h-4 stroke-[2.2]" />
+                      </div>
+                      <span className="text-left text-xs sm:text-sm font-bold">
+                        {item.label}
+                      </span>
+                    </div>
+
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      isSelected 
+                        ? 'bg-white text-[#1752b0]' 
+                        : 'bg-white text-slate-500 border border-slate-200'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        )}
+
+          {/* Products Grid Column */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {currentProducts.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3">
+                <Search className="w-10 h-10 text-slate-300 mx-auto" />
+                <h3 className="text-lg font-bold text-[#0b2854]">No encontramos productos</h3>
+                <p className="text-slate-500 text-xs sm:text-sm">
+                  Intenta cambiar el término de búsqueda o selecciona otra categoría.
+                </p>
+                <button
+                  onClick={() => { setSearchQuery(''); setSelectedCategory('Todos'); }}
+                  className="inline-flex items-center gap-2 bg-[#1752b0] text-white text-xs font-bold px-4 py-2 rounded-xl"
+                >
+                  Ver todos los productos
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                {currentProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    style={{ fontFamily: "'Outfit', sans-serif" }}
+                    className="bg-white rounded-[20px] border border-slate-200/80 p-3.5 sm:p-4 text-center shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
+                  >
+                    <div>
+                      <div className="relative w-full aspect-square bg-[#ebf5fc] rounded-[14px] overflow-hidden mb-3.5 flex items-center justify-center">
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+
+                      <h3 className="text-[#0b2854] font-bold text-sm sm:text-base leading-tight mb-1 line-clamp-2">
+                        {product.name}
+                      </h3>
+
+                      <p className="text-slate-500 font-medium text-xs sm:text-sm mb-2">
+                        {product.format}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 mt-2">
+                      <div className="text-[#1752b0] font-[800] text-lg sm:text-xl mb-2">
+                        {product.price}
+                      </div>
+
+                      <a
+                        href={getProductWhatsappUrl(product)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center gap-1.5 bg-[#1752b0] hover:bg-[#094bb5] active:scale-95 text-white py-2 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-xs"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>Pedir por WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-4">
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 disabled:opacity-40 hover:bg-slate-50 transition-colors cursor-pointer"
+                  aria-label="Página anterior"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    type="button"
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    style={{ fontFamily: "'Outfit', sans-serif" }}
+                    className={`w-9 h-9 flex items-center justify-center rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                      currentPage === pageNum
+                        ? 'bg-[#1752b0] text-white shadow-xs scale-105'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 disabled:opacity-40 hover:bg-slate-50 transition-colors cursor-pointer"
+                  aria-label="Página siguiente"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+          </div>
+
+        </div>
+
       </div>
     </section>
   );
 }
-
-
-
