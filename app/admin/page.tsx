@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { supabase, DbProduct } from '../lib/supabase';
+import { compressImage } from '../lib/compressImage';
 import { 
   Plus, 
   Search, 
@@ -55,12 +56,19 @@ export default function AdminPage() {
 
     setUploadingImage(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      // 1. Comprimir la imagen en el cliente a formato WebP ligero (Max 800px, 75% calidad)
+      const { compressedFile, originalSizeKb, compressedSizeKb } = await compressImage(file, 800, 800, 0.75);
+
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.webp`;
       
-      const { data, error } = await supabase.storage
+      // 2. Subir imagen única comprimida a Supabase Storage
+      const { error } = await supabase.storage
         .from('productos')
-        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+        .upload(fileName, compressedFile, { 
+          contentType: 'image/webp', 
+          cacheControl: '31536000', 
+          upsert: true 
+        });
 
       if (error) throw error;
 
@@ -69,14 +77,16 @@ export default function AdminPage() {
         .getPublicUrl(fileName);
 
       if (publicUrlData?.publicUrl) {
+        // Reemplaza de forma estricta la única imagen del producto
         setFormData((prev) => ({ ...prev, image: publicUrlData.publicUrl }));
-        showToast('¡Imagen subida a Supabase Storage!');
+        showToast(`¡Imagen optimizada (${originalSizeKb} KB ➔ ${compressedSizeKb} KB WebP) y guardada!`);
       }
     } catch (err: any) {
       console.error('Error uploading image:', err);
-      showToast(`Error al subir imagen: ${err.message || 'Verifica que el bucket sea público'}`, 'error');
+      showToast(`Error al comprimir/subir imagen: ${err.message || 'Verifica que el bucket sea público'}`, 'error');
     } finally {
       setUploadingImage(false);
+      e.target.value = '';
     }
   };
 
