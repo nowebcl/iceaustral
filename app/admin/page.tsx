@@ -21,7 +21,8 @@ import {
   Sparkles,
   ExternalLink,
   ShieldCheck,
-  Upload
+  Upload,
+  Snowflake
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -416,14 +417,23 @@ export default function AdminPage() {
               >
                 <div>
                   {/* Image & Category Badge */}
-                  <div className="relative w-full aspect-square bg-slate-100 rounded-xl overflow-hidden mb-3 border border-slate-100 flex items-center justify-center">
-                    <Image
-                      src={product.image || 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80'}
-                      alt={product.name}
-                      fill
-                      sizes="250px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-200"
-                    />
+                  <div className="relative w-full aspect-square bg-[#ebf5fc] rounded-xl overflow-hidden mb-3 border border-slate-100 flex items-center justify-center">
+                    {Boolean(product.image && typeof product.image === 'string' && product.image.trim().length > 5 && product.image.startsWith('http')) ? (
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        sizes="250px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center space-y-1 text-[#1752b0]">
+                        <Snowflake className="w-7 h-7 text-[#1752b0]/50 animate-pulse" />
+                        <span className="font-extrabold text-[10px] uppercase bg-white text-[#1752b0] px-2 py-0.5 rounded-full border border-[#bce0f8]">
+                          Pronto
+                        </span>
+                      </div>
+                    )}
                     <span className="absolute top-2 left-2 bg-white/95 backdrop-blur-xs text-[#1752b0] text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs border border-slate-100">
                       {product.category || 'General'}
                     </span>

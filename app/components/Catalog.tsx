@@ -30,35 +30,120 @@ export interface ProductItem {
 }
 
 const ALL_PRODUCTS: ProductItem[] = [
-  // 1. Productos del Mar
-  { id: 'mar-1', name: 'Surtido de mariscos 500 g', category: 'Mariscos', format: '500 grs', price: '$3.800', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-2', name: 'Navajuelas 500 g', category: 'Mariscos', format: '500 grs', price: '$3.800', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-3', name: 'Piure congelado 500 g', category: 'Mariscos', format: '500 grs', price: '$3.800', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-4', name: 'Paila con piure 500 g', category: 'Mariscos', format: '500 grs', price: '$3.800', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-5', name: 'Carne de choritos 500 g', category: 'Mariscos', format: '500 grs', price: '$2.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-6', name: 'Camarón crudo 36/40 1 kg (Jetro)', category: 'Mariscos', format: '1 kg', price: '$10.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-7', name: 'Atún 500 g', category: 'Pescados', format: '500 grs', price: '$6.500', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-8', name: 'Jaiba 500 g', category: 'Mariscos', format: '500 grs', price: '$8.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-9', name: 'Merluza con piel 1 kg', category: 'Pescados', format: '1 kg', price: '$6.500', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-10', name: 'Salmón salar con piel (kg)', category: 'Pescados', format: '1 kg', price: '$14.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-11', name: 'Salmón salar sin piel (kg)', category: 'Pescados', format: '1 kg', price: '$14.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-12', name: 'Salmón trucha con piel (kg)', category: 'Pescados', format: '1 kg', price: '$14.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  
-  // Page 2
-  { id: 'mar-13', name: 'Salmón salar porción con piel (kg)', category: 'Pescados', format: '1 kg', price: '$15.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-14', name: 'Salmón salar porción sin piel (kg)', category: 'Pescados', format: '1 kg', price: '$15.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-15', name: 'Salmón slice ahumado en frío 200 g', category: 'Pescados', format: '200 grs', price: '$5.000', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-16', name: 'Salmón salar en cubos 500 g', category: 'Pescados', format: '500 grs', price: '$7.400', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-17', name: 'Camarón crudo desvenado 36/40 1 kg', category: 'Mariscos', format: '1 kg', price: '$8.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-18', name: 'Camarón pelado cocido 100/150 1 kg', category: 'Mariscos', format: '1 kg', price: '$6.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-19', name: 'Camarón ecuatoriano crudo pelado 1 kg', category: 'Mariscos', format: '1 kg', price: '$10.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-20', name: 'Camarón apanado 500 g', category: 'Mariscos', format: '500 grs', price: '$7.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'mar-21', name: 'Ostiones 10 un.', category: 'Mariscos', format: '10 un.', price: '$8.700', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-17', name: 'Frutilla 500 g (Minuto Verde)', category: 'Frutas', format: '500 grs', price: '$3.690', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'fru-19', name: 'Frambuesas 400 g (Minuto Verde)', category: 'Frutas', format: '400 grs', price: '$5.590', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'car-6', name: 'Hamburguesas de vacuno 4 un.', category: 'Carnes', format: '1 kg', price: '$6.900', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'pap-1', name: 'Papas prefritas 1 kg (Minuto Verde)', category: 'Papas & Masas', format: '1 kg', price: '$3.300', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'beb-4', name: 'Red Bull / Monster Zero', category: 'Bebidas', format: '250 ml / 473 ml', price: '$1.490', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80' },
+  // 1. Productos del Mar (25)
+  { id: 'mar-1', name: 'Surtido de mariscos 500 grs', category: 'Mariscos', format: '500 grs', price: '$3.800', image: '' },
+  { id: 'mar-2', name: 'Navajuelas 500 grs', category: 'Mariscos', format: '500 grs', price: '$3.800', image: '' },
+  { id: 'mar-3', name: 'Piure congelado 500 grs', category: 'Mariscos', format: '500 grs', price: '$3.800', image: '' },
+  { id: 'mar-4', name: 'Paila con piure 500 grs', category: 'Mariscos', format: '500 grs', price: '$3.800', image: '' },
+  { id: 'mar-5', name: 'Carne de choritos 500 grs', category: 'Mariscos', format: '500 grs', price: '$2.900', image: '' },
+  { id: 'mar-6', name: 'Camarón crudo 36/40 1 kg Jetro', category: 'Mariscos', format: '1 kg', price: '$10.490', image: '' },
+  { id: 'mar-7', name: 'Atún 500 grs', category: 'Pescados', format: '500 grs', price: '$6.500', image: '' },
+  { id: 'mar-8', name: 'Jaiba 500 grs', category: 'Mariscos', format: '500 grs', price: '$8.900', image: '' },
+  { id: 'mar-9', name: 'Merluza con piel 1 kg', category: 'Pescados', format: '1 kg', price: '$6.500', image: '' },
+  { id: 'mar-10', name: 'Salmón Salar con piel – precio x kilo', category: 'Pescados', format: '1 kg', price: '$14.900', image: '' },
+  { id: 'mar-11', name: 'Salmón Salar sin piel – precio x kilo', category: 'Pescados', format: '1 kg', price: '$14.900', image: '' },
+  { id: 'mar-12', name: 'Salmón Trucha con piel – precio x kilo', category: 'Pescados', format: '1 kg', price: '$14.900', image: '' },
+  { id: 'mar-13', name: 'Salmón Salar porción con piel – precio x kilo', category: 'Pescados', format: '1 kg', price: '$15.900', image: '' },
+  { id: 'mar-14', name: 'Salmón Salar porción sin piel – precio x kilo', category: 'Pescados', format: '1 kg', price: '$15.900', image: '' },
+  { id: 'mar-15', name: 'Salmón slice ahumado en frío 200 grs', category: 'Pescados', format: '200 grs', price: '$5.000', image: '' },
+  { id: 'mar-16', name: 'Salmón Salar en cubos 500 gr', category: 'Pescados', format: '500 grs', price: '$7.400', image: '' },
+  { id: 'mar-17', name: 'Camarón crudo desvenado 36/40 1 kg', category: 'Mariscos', format: '1 kg', price: '$8.900', image: '' },
+  { id: 'mar-18', name: 'Camarón pelado cocido 36/40 1 kg', category: 'Mariscos', format: '1 kg', price: '$9.990', image: '' },
+  { id: 'mar-19', name: 'Camarón pelado cocido 100/150 1 kg', category: 'Mariscos', format: '1 kg', price: '$6.900', image: '' },
+  { id: 'mar-20', name: 'Camarón ecuatoriano crudo pelado y desvenado 1 kg', category: 'Mariscos', format: '1 kg', price: '$10.490', image: '' },
+  { id: 'mar-21', name: 'Anilla de calamar 1 kg', category: 'Mariscos', format: '1 kg', price: '$8.490', image: '' },
+  { id: 'mar-22', name: 'Camarón apanado 500 gr', category: 'Mariscos', format: '500 grs', price: '$7.900', image: '' },
+  { id: 'mar-23', name: 'Ostiones 10 un.', category: 'Mariscos', format: '10 un.', price: '$8.700', image: '' },
+  { id: 'mar-24', name: 'Choritos en salsa de ajo y mantequilla 450 gr', category: 'Mariscos', format: '450 grs', price: '$1.500', image: '' },
+  { id: 'mar-25', name: 'Pulpo en conserva 1 lt', category: 'Mariscos', format: '1 L', price: '$19.800', image: '' },
+
+  // 2. Frutas y Verduras (38)
+  { id: 'fru-26', name: 'Surtido de pimentón 1 kg Min Verde', category: 'Verduras', format: '1 kg', price: '$3.990', image: '' },
+  { id: 'fru-27', name: 'Choclo grano 500 grs Frutos del Maipo', category: 'Verduras', format: '500 grs', price: '$2.090', image: '' },
+  { id: 'fru-28', name: 'Choclo grano 1 kg Min Verde', category: 'Verduras', format: '1 kg', price: '$3.790', image: '' },
+  { id: 'fru-29', name: 'Choclo trozo 180 grs Min Verde', category: 'Verduras', format: '180 grs', price: '$1.290', image: '' },
+  { id: 'fru-30', name: 'Pasta choclo 1 kg Min Verde', category: 'Verduras', format: '1 kg', price: '$4.500', image: '' },
+  { id: 'fru-31', name: 'Habas 500 grs Min Verde', category: 'Verduras', format: '500 grs', price: '$2.490', image: '' },
+  { id: 'fru-32', name: 'Primavera 200 grs Min Verde', category: 'Verduras', format: '200 grs', price: '$990', image: '' },
+  { id: 'fru-33', name: 'Primavera 500 grs Min Verde', category: 'Verduras', format: '500 grs', price: '$1.790', image: '' },
+  { id: 'fru-34', name: 'Sofrito 150 grs Frutos del Maipo', category: 'Verduras', format: '150 grs', price: '$940', image: '' },
+  { id: 'fru-35', name: 'Sofrito con ajo 500 grs Min Verde', category: 'Verduras', format: '500 grs', price: '$2.690', image: '' },
+  { id: 'fru-36', name: 'Poroto verde 500 grs Min Verde', category: 'Verduras', format: '500 grs', price: '$3.200', image: '' },
+  { id: 'fru-37', name: 'Mix pimentón 150 grs Min Verde', category: 'Verduras', format: '150 grs', price: '$990', image: '' },
+  { id: 'fru-38', name: 'Arvejas 1 kg Min Verde', category: 'Verduras', format: '1 kg', price: '$3.290', image: '' },
+  { id: 'fru-39', name: 'Arvejas 500 grs Min Verde', category: 'Verduras', format: '500 grs', price: '$1.890', image: '' },
+  { id: 'fru-40', name: 'Cebolla picada 250 grs Min Verde', category: 'Verduras', format: '250 grs', price: '$1.290', image: '' },
+  { id: 'fru-41', name: 'Salteado Chapsui 400 grs Min Verde', category: 'Verduras', format: '400 grs', price: '$2.190', image: '' },
+  { id: 'fru-42', name: 'Zapallo en cubos 500 grs Min Verde', category: 'Verduras', format: '500 grs', price: '$1.690', image: '' },
+  { id: 'fru-43', name: 'Mix porotos granados 500 grs Min Verde', category: 'Verduras', format: '500 grs', price: '$2.990', image: '' },
+  { id: 'fru-44', name: 'Arándanos 400 grs Min Verde', category: 'Frutas', format: '400 grs', price: '$3.490', image: '' },
+  { id: 'fru-45', name: 'Frutos del bosque 400 grs Min Verde', category: 'Frutas', format: '400 grs', price: '$3.990', image: '' },
+  { id: 'fru-46', name: 'Frutilla 500 grs Min Verde', category: 'Frutas', format: '500 grs', price: '$3.690', image: '' },
+  { id: 'fru-47', name: 'Frambuesas 400 grs Min Verde', category: 'Frutas', format: '400 grs', price: '$5.590', image: '' },
+  { id: 'fru-48', name: 'Mango en trozos 500 grs Min Verde', category: 'Frutas', format: '500 grs', price: '$3.990', image: '' },
+  { id: 'fru-49', name: 'Piña en trozos 500 grs Min Verde', category: 'Frutas', format: '500 grs', price: '$3.990', image: '' },
+  { id: 'fru-50', name: 'Smoothie Red Antiox 500 grs Min Verde', category: 'Frutas', format: '500 grs', price: '$4.290', image: '' },
+  { id: 'fru-51', name: 'Smoothie Pink Punch 500 grs Min Verde', category: 'Frutas', format: '500 grs', price: '$4.290', image: '' },
+  { id: 'fru-52', name: 'Frambuesa IQF entera bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$7.500', image: '' },
+  { id: 'fru-53', name: 'Frambuesa semi-entera bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$6.500', image: '' },
+  { id: 'fru-54', name: 'Mora IQF bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$5.000', image: '' },
+  { id: 'fru-55', name: 'Frutilla IQF bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$5.000', image: '' },
+  { id: 'fru-56', name: 'Murta IQF bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$9.500', image: '' },
+  { id: 'fru-57', name: 'Frambuesa pulpa bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$5.000', image: '' },
+  { id: 'fru-58', name: 'Mora pulpa bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$4.500', image: '' },
+  { id: 'fru-59', name: 'Frutilla pulpa bolsa 1 kg', category: 'Frutas', format: '1 kg', price: '$4.500', image: '' },
+  { id: 'fru-60', name: 'Tortilla papas 350 grs Min Verde', category: 'Verduras', format: '350 grs', price: '$3.690', image: '' },
+  { id: 'fru-61', name: 'Tortilla zanahoria 350 grs Min Verde', category: 'Verduras', format: '350 grs', price: '$3.690', image: '' },
+  { id: 'fru-62', name: 'Espárragos 350 grs Min Verde', category: 'Verduras', format: '350 grs', price: '$4.290', image: '' },
+  { id: 'fru-63', name: 'Humitas 600 grs Min Verde', category: 'Verduras', format: '600 grs', price: '$5.900', image: '' },
+
+  // 3. Carnes (11)
+  { id: 'car-64', name: 'Hamburguesa porotos negros 100 grs Min Verde', category: 'Carnes', format: '100 grs', price: '$850', image: '' },
+  { id: 'car-65', name: 'Hamburguesa lentejas 100 grs Min Verde', category: 'Carnes', format: '100 grs', price: '$850', image: '' },
+  { id: 'car-66', name: 'Hamburguesa garbanzos 100 grs Min Verde', category: 'Carnes', format: '100 grs', price: '$850', image: '' },
+  { id: 'car-67', name: 'Vegan Burger 100 grs RDA', category: 'Carnes', format: '100 grs', price: '$1.190', image: '' },
+  { id: 'car-68', name: 'Vegan Crispy 120 grs RDA', category: 'Carnes', format: '120 grs', price: '$1.290', image: '' },
+  { id: 'car-69', name: 'Molida vacuno 250 grs Karmac', category: 'Carnes', format: '250 grs', price: '$2.390', image: '' },
+  { id: 'car-70', name: 'Hamburguesa 100 grs Llanquihue', category: 'Carnes', format: '100 grs', price: '$990', image: '' },
+  { id: 'car-71', name: 'Hamburguesa 100 grs La Crianza', category: 'Carnes', format: '100 grs', price: '$990', image: '' },
+  { id: 'car-72', name: 'Nuggets 275 grs Super Pollo', category: 'Carnes', format: '275 grs', price: '$1.390', image: '' },
+  { id: 'car-73', name: 'Escalopa vacuno Receta del Abuelo', category: 'Carnes', format: '1 un.', price: '$1.200', image: '' },
+  { id: 'car-74', name: 'Suprema pollo Receta del Abuelo', category: 'Carnes', format: '1 un.', price: '$1.150', image: '' },
+
+  // 4. Comidas Preparadas (3)
+  { id: 'pre-75', name: 'Pizza jamón y queso 470 grs La Cabaña', category: 'Comidas', format: '470 grs', price: '$4.990', image: '' },
+  { id: 'pre-76', name: 'Pizza pepperoni 470 grs La Cabaña', category: 'Comidas', format: '470 grs', price: '$4.990', image: '' },
+  { id: 'pre-77', name: 'Pizza cuatro quesos 470 grs La Cabaña', category: 'Comidas', format: '470 grs', price: '$4.990', image: '' },
+
+  // 5. Papas y Masas (14)
+  { id: 'pap-78', name: 'Papas pre-fritas 1 kg Min Verde', category: 'Papas & Masas', format: '1 kg', price: '$3.300', image: '' },
+  { id: 'pap-79', name: 'Papas pre-fritas 12 mm 2,5 kg A&F', category: 'Papas & Masas', format: '2,5 kg', price: '$6.490', image: '' },
+  { id: 'pap-80', name: 'Papas pre-fritas 11 mm 500 grs Alim Chile', category: 'Papas & Masas', format: '500 grs', price: '$1.690', image: '' },
+  { id: 'pap-81', name: 'Papas pre-fritas finas 800 grs Min Verde', category: 'Papas & Masas', format: '800 grs', price: '$3.100', image: '' },
+  { id: 'pap-82', name: 'Papas gajo horneables 700 grs Min Verde', category: 'Papas & Masas', format: '700 grs', price: '$2.990', image: '' },
+  { id: 'pap-83', name: 'Papas Loop 800 grs Min Verde', category: 'Papas & Masas', format: '800 grs', price: '$4.590', image: '' },
+  { id: 'pap-84', name: 'Papas duquesas 1 kg Min Verde', category: 'Papas & Masas', format: '1 kg', price: '$3.990', image: '' },
+  { id: 'pap-85', name: 'Arrollado primavera', category: 'Papas & Masas', format: '10 un.', price: '$3.950', image: '' },
+  { id: 'pap-86', name: 'Empanada queso-camarón 10 un.', category: 'Papas & Masas', format: '10 un.', price: '$2.890', image: '' },
+  { id: 'pap-87', name: 'Empanada queso 10 un.', category: 'Papas & Masas', format: '10 un.', price: '$2.200', image: '' },
+  { id: 'pap-88', name: 'Empanada jamón-queso 10 un.', category: 'Papas & Masas', format: '10 un.', price: '$2.890', image: '' },
+  { id: 'pap-89', name: 'Empanada pino 10 un.', category: 'Papas & Masas', format: '10 un.', price: '$2.890', image: '' },
+  { id: 'pap-90', name: 'Empanada queso-ciboulette 10 un.', category: 'Papas & Masas', format: '10 un.', price: '$2.890', image: '' },
+  { id: 'pap-91', name: 'Sopapillas 50 grs, 10 unid., Alim Chile', category: 'Papas & Masas', format: '500 grs', price: '$2.690', image: '' },
+
+  // 6. Bebidas y Jugos (12)
+  { id: 'beb-92', name: 'Jugo Jumex durazno y piña', category: 'Bebidas', format: '1 L', price: '$1.090', image: '' },
+  { id: 'beb-93', name: 'Suerox Blue', category: 'Bebidas', format: '630 ml', price: '$2.490', image: '' },
+  { id: 'beb-94', name: 'Agua con gas 500 ml', category: 'Bebidas', format: '500 ml', price: '$690', image: '' },
+  { id: 'beb-95', name: 'Agua sin gas 500 ml', category: 'Bebidas', format: '500 ml', price: '$690', image: '' },
+  { id: 'beb-96', name: 'Redbull y Redbull Red', category: 'Bebidas', format: '250 ml', price: '$1.490', image: '' },
+  { id: 'beb-97', name: 'Monster Zero', category: 'Bebidas', format: '473 ml', price: '$2.090', image: '' },
+  { id: 'beb-98', name: 'Bebida Bilz', category: 'Bebidas', format: 'Lata', price: '$990', image: '' },
+  { id: 'beb-99', name: 'Bebida Coca-Cola Original', category: 'Bebidas', format: 'Lata / Botella', price: '$990', image: '' },
+  { id: 'beb-100', name: 'Bebida Kem', category: 'Bebidas', format: 'Lata', price: '$990', image: '' },
+  { id: 'beb-101', name: 'Bebida Pap', category: 'Bebidas', format: 'Lata', price: '$990', image: '' },
+  { id: 'beb-102', name: 'Bebida Sprite', category: 'Bebidas', format: 'Lata / Botella', price: '$990', image: '' },
+  { id: 'beb-103', name: 'Bebida Coca-Cola Cero', category: 'Bebidas', format: 'Lata / Botella', price: '$990', image: '' },
 ];
 
 const ITEMS_PER_PAGE = 12;
@@ -177,7 +262,7 @@ export default function Catalog() {
           </h2>
           
           <p className="text-slate-500 font-bold text-xs sm:text-sm">
-            (Imágenes referenciales) — {filteredProducts.length} productos
+            {filteredProducts.length} productos
           </p>
 
           {/* Snowflake Divider Line */}
@@ -194,7 +279,7 @@ export default function Catalog() {
             <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#1752b0] absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Buscar (ej. Salmón, Camarón, 1 kg, Frutilla)..."
+              placeholder="Buscar productos (ej. Salmón, Camarón, 1 kg, Frutilla)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 sm:pl-12 pr-9 sm:pr-10 py-3 bg-white border border-[#d0e5f7] focus:border-[#1752b0] rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-3 focus:ring-blue-100 transition-all placeholder:text-slate-400"
@@ -224,31 +309,31 @@ export default function Catalog() {
 
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 no-scrollbar">
             {CATEGORY_ITEMS.map((item) => {
-            const IconComponent = item.icon;
-            const isSelected = selectedCategory === item.key;
-            const count = getCategoryCount(item.key);
+              const IconComponent = item.icon;
+              const isSelected = selectedCategory === item.key;
+              const count = getCategoryCount(item.key);
 
-            return (
-              <button
-                key={item.id}
-                onClick={() => setSelectedCategory(item.key)}
-                style={{ fontFamily: "'Outfit', sans-serif" }}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#1752b0] text-white shadow-xs scale-98'
-                    : 'bg-white text-[#173a6e] border border-slate-200/90 hover:bg-slate-50'
-                }`}
-              >
-                <IconComponent className="w-3.5 h-3.5" />
-                <span>{item.label}</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setSelectedCategory(item.key)}
+                  style={{ fontFamily: "'Outfit', sans-serif" }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#1752b0] text-white shadow-xs scale-98'
+                      : 'bg-white text-[#173a6e] border border-slate-200/90 hover:bg-slate-50'
+                  }`}
+                >
+                  <IconComponent className="w-3.5 h-3.5" />
+                  <span>{item.label}</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -330,14 +415,24 @@ export default function Catalog() {
                     className="bg-white rounded-[20px] border border-slate-200/80 p-3 sm:p-4 text-center shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
                   >
                     <div>
+                      {/* Product Thumbnail / Image or PRONTO Badge */}
                       <div className="relative w-full aspect-square bg-[#ebf5fc] rounded-[14px] overflow-hidden mb-2.5 sm:mb-3.5 flex items-center justify-center">
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+                        {Boolean(product.image && typeof product.image === 'string' && product.image.trim().length > 5 && product.image.startsWith('http')) ? (
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center space-y-1.5 text-[#1752b0] p-2">
+                            <Snowflake className="w-8 h-8 stroke-[1.5] text-[#1752b0]/50 animate-pulse" />
+                            <span className="font-extrabold text-[10px] sm:text-[11px] tracking-wider uppercase bg-white text-[#1752b0] px-2.5 py-0.5 rounded-full shadow-2xs border border-[#bce0f8]">
+                              Pronto
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <h3 className="text-[#0b2854] font-bold text-xs sm:text-base leading-tight mb-1 line-clamp-2">
