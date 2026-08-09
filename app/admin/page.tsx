@@ -143,7 +143,7 @@ export default function AdminPage() {
     setUploadingImage(true);
     try {
       // 1. Comprimir la imagen en el cliente a formato WebP ligero
-      const compressedBlob = await compressImage(file, 800, 800, 0.75);
+      const { compressedFile } = await compressImage(file, 800, 800, 0.75);
       
       const fileExt = 'webp';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
@@ -152,7 +152,7 @@ export default function AdminPage() {
       // 2. Subir directamente a Supabase Storage bucket 'productos'
       const { error: uploadError } = await supabase.storage
         .from('productos')
-        .upload(filePath, compressedBlob, {
+        .upload(filePath, compressedFile, {
           contentType: 'image/webp',
           upsert: true
         });
