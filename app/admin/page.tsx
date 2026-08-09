@@ -19,7 +19,8 @@ import {
   Layers, 
   Sparkles,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Upload
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -45,6 +46,39 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<DbProduct | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
+
+  const [uploadingImage, setUploadingImage] = useState<boolean>(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('productos')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+      if (error) throw error;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('productos')
+        .getPublicUrl(fileName);
+
+      if (publicUrlData?.publicUrl) {
+        setFormData((prev) => ({ ...prev, image: publicUrlData.publicUrl }));
+        showToast('¡Imagen subida a Supabase Storage!');
+      }
+    } catch (err: any) {
+      console.error('Error uploading image:', err);
+      showToast(`Error al subir imagen: ${err.message || 'Verifica que el bucket sea público'}`, 'error');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   // Toast Notification State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -545,11 +579,30 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  URL Imagen Referencial
+                  Imagen del Producto
                 </label>
+                
+                {/* Upload File Input Button */}
+                <div className="flex flex-col sm:flex-row gap-2 mb-2">
+                  <label className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-[#1752b0] font-bold text-xs py-2.5 px-3 rounded-xl cursor-pointer transition-colors shadow-2xs">
+                    <Upload className={`w-4 h-4 ${uploadingImage ? 'animate-bounce' : ''}`} />
+                    <span>{uploadingImage ? 'Subiendo imagen a Storage...' : 'Subir desde mi celular / PC'}</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleFileUpload} 
+                      disabled={uploadingImage}
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+
+                <div className="text-[11px] text-slate-400 font-medium mb-1">
+                  O pega directamente la URL de la imagen:
+                </div>
                 <input
                   type="url"
-                  placeholder="https://images.unsplash.com/..."
+                  placeholder="https://..."
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-[#1752b0] focus:bg-white focus:outline-none"
