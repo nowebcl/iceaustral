@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { Search, MessageCircle, ChevronLeft, ChevronRight, Snowflake } from 'lucide-react';
 
@@ -108,16 +108,33 @@ const ALL_PRODUCTS: ProductItem[] = [
 
 const ITEMS_PER_PAGE = 12;
 
+import { supabase } from '../lib/supabase';
+
 export default function Catalog() {
+  const [productsList, setProductsList] = useState<ProductItem[]>(ALL_PRODUCTS);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const whatsappNumber = '56940500068';
 
-  const totalPages = Math.ceil(ALL_PRODUCTS.length / ITEMS_PER_PAGE) || 1;
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        if (data && data.length > 0) {
+          setProductsList(data as ProductItem[]);
+        }
+      } catch (e) {
+        console.log('Using static products catalog fallback');
+      }
+    }
+    loadProducts();
+  }, []);
+
+  const totalPages = Math.ceil(productsList.length / ITEMS_PER_PAGE) || 1;
 
   // Derive current products slice directly without stale memoization
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentProducts = ALL_PRODUCTS.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  const currentProducts = productsList.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
