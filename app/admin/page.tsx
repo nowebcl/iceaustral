@@ -285,6 +285,8 @@ export default function AdminPage() {
       }
 
       setIsModalOpen(false);
+      setSelectedCategory('Todos');
+      setSearchQuery('');
       fetchProducts();
     } catch (err: any) {
       console.error('Error saving product:', err);
