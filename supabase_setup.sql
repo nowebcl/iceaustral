@@ -9,7 +9,7 @@ create table if not exists products (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 2. HABILITAR SEGURIDAD RLS (Row Level Security) Y POLÍTICAS DE ACCESO
+-- 2. HABILITAR SEGURIDAD RLS (Row Level Security) Y POLÍTICAS DE ACCESO A PRODUCTOS
 alter table products enable row level security;
 
 drop policy if exists "Public Read Access" on products;
@@ -21,6 +21,21 @@ create policy "Public Read Access" on products for select using (true);
 create policy "Public Insert Access" on products for insert with check (true);
 create policy "Public Update Access" on products for update using (true);
 create policy "Public Delete Access" on products for delete using (true);
+
+-- 2.1 BUCKET DE ALMACENAMIENTO DE IMÁGENES Y POLÍTICAS
+insert into storage.buckets (id, name, public) 
+values ('productos', 'productos', true) 
+on conflict (id) do update set public = true;
+
+drop policy if exists "Public Storage Select" on storage.objects;
+drop policy if exists "Public Storage Insert" on storage.objects;
+drop policy if exists "Public Storage Update" on storage.objects;
+drop policy if exists "Public Storage Delete" on storage.objects;
+
+create policy "Public Storage Select" on storage.objects for select using (bucket_id = 'productos');
+create policy "Public Storage Insert" on storage.objects for insert with check (bucket_id = 'productos');
+create policy "Public Storage Update" on storage.objects for update using (bucket_id = 'productos');
+create policy "Public Storage Delete" on storage.objects for delete using (bucket_id = 'productos');
 
 -- 3. INSERTAR PRODUCTOS INICIALES DEL CATÁLOGO
 insert into products (name, category, format, price, image) values
