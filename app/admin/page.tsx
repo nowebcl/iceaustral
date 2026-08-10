@@ -213,6 +213,12 @@ export default function AdminPage() {
       (product.category && product.category.toLowerCase().includes(selectedCategory.toLowerCase()));
 
     return matchesSearch && matchesCategory;
+  }).sort((a, b) => {
+    const aHasImg = Boolean(a.image && typeof a.image === 'string' && a.image.trim().length > 5 && a.image.startsWith('http'));
+    const bHasImg = Boolean(b.image && typeof b.image === 'string' && b.image.trim().length > 5 && b.image.startsWith('http'));
+    if (aHasImg && !bHasImg) return -1;
+    if (!aHasImg && bHasImg) return 1;
+    return 0;
   });
 
   // Open modal for creating new product
