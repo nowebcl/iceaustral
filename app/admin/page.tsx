@@ -147,7 +147,7 @@ export default function AdminPage() {
       
       const fileExt = 'webp';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-      const filePath = `productos/${fileName}`;
+      const filePath = `${fileName}`;
 
       // 2. Subir directamente a Supabase Storage bucket 'productos'
       const { error: uploadError } = await supabase.storage
