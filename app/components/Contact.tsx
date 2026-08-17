@@ -46,19 +46,12 @@ export default function Contact() {
                 </div>
               </a>
 
-              {/* Delivery Especializado con Icono de Camión */}
-              <a href="https://wa.me/56983587389" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#25D366] transition-colors group bg-white/80 p-3 rounded-2xl border border-[#d6e7f7] shadow-sm">
-                <div className="w-[34px] h-[34px] rounded-xl bg-[#1752b0] flex items-center justify-center text-white flex-shrink-0 shadow-sm group-hover:bg-[#25D366] transition-colors">
-                  <Truck className="w-5 h-5" strokeWidth={2} />
-                </div>
+              {/* Teléfono / WhatsApp Delivery */}
+              <a href="https://wa.me/56983587389" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#25D366] transition-colors group">
+                <Truck className="w-[22px] h-[22px] text-[#1752b0] group-hover:text-[#25D366] transition-colors flex-shrink-0" strokeWidth={2.2} />
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#0b2854] font-extrabold text-[16px]">+56 9 8358 7389</span>
-                    <span className="bg-[#e6f4ea] text-[#137333] text-[11px] font-bold px-2 py-0.5 rounded-full border border-[#ceead6]">
-                      Delivery
-                    </span>
-                  </div>
-                  <span className="text-xs text-[#5278a8] font-medium">Pedidos directos a domicilio</span>
+                  <span>+56 9 8358 7389</span>
+                  <span className="text-xs text-[#5278a8] font-medium">Delivery</span>
                 </div>
               </a>
 
