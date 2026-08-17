@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Instagram, Facebook } from 'lucide-react';
+import { MapPin, Instagram, Facebook, Truck } from 'lucide-react';
 
 const WhatsappBrandIcon = () => (
   <svg viewBox="0 0 24 24" width="22" height="22" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
@@ -13,7 +13,7 @@ export default function Contact() {
     <section id="contacto" className="py-16 sm:py-24 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Main Card Container matching the light blue background from screenshot */}
+        {/* Main Card Container */}
         <div className="bg-[#f0f6fc] rounded-[32px] overflow-hidden shadow-sm border border-[#e2eff8] flex flex-col lg:flex-row">
           
           {/* Left Column: Info */}
@@ -21,13 +21,14 @@ export default function Contact() {
             
             <div className="mb-10">
               <h2 className="text-[28px] sm:text-[34px] font-[800] text-[#0b2854] tracking-tight leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                Dirección y redes sociales
+                Dirección y Contacto
               </h2>
               <span className="block w-[42px] h-[2.5px] bg-[#1752b0] mt-4" />
             </div>
 
             <div className="space-y-6 text-[#173a6e] font-bold text-[15px] sm:text-[16px]">
               
+              {/* Dirección */}
               <div className="flex items-start gap-4">
                 <MapPin className="w-[22px] h-[22px] text-[#1752b0] flex-shrink-0 mt-0.5" fill="#1752b0" stroke="white" strokeWidth={1.5} />
                 <div className="leading-tight">
@@ -36,40 +37,49 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <MapPin className="w-[22px] h-[22px] text-[#1752b0] flex-shrink-0 mt-0.5" fill="#1752b0" stroke="white" strokeWidth={1.5} />
-                <div className="leading-tight">
-                  Miraflores 1530,<br/>
-                  Puerto Montt
+              {/* Teléfono / WhatsApp Local */}
+              <a href="https://wa.me/56940500068" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#25D366] transition-colors group">
+                <WhatsappBrandIcon />
+                <div className="flex flex-col">
+                  <span>+56 9 4050 0068</span>
+                  <span className="text-xs text-[#5278a8] font-medium">Atención y Consultas</span>
                 </div>
-              </div>
-
-              <a href="https://wa.me/56940500068" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#25D366] transition-colors">
-                <WhatsappBrandIcon />
-                <span>+56 9 4050 0068</span>
               </a>
 
-              <a href="https://wa.me/56940500068" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#25D366] transition-colors">
-                <WhatsappBrandIcon />
-                <span>+56 9 4050 0068</span>
+              {/* Delivery Especializado con Icono de Camión */}
+              <a href="https://wa.me/56983587389" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#25D366] transition-colors group bg-white/80 p-3 rounded-2xl border border-[#d6e7f7] shadow-sm">
+                <div className="w-[34px] h-[34px] rounded-xl bg-[#1752b0] flex items-center justify-center text-white flex-shrink-0 shadow-sm group-hover:bg-[#25D366] transition-colors">
+                  <Truck className="w-5 h-5" strokeWidth={2} />
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#0b2854] font-extrabold text-[16px]">+56 9 8358 7389</span>
+                    <span className="bg-[#e6f4ea] text-[#137333] text-[11px] font-bold px-2 py-0.5 rounded-full border border-[#ceead6]">
+                      Delivery
+                    </span>
+                  </div>
+                  <span className="text-xs text-[#5278a8] font-medium">Pedidos directos a domicilio</span>
+                </div>
               </a>
 
-              <div className="flex items-center gap-4">
+              {/* Instagram */}
+              <a href="https://www.instagram.com/ice_austral" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#e91e63] transition-colors">
                 <div className="w-[22px] h-[22px] flex items-center justify-center rounded-[6px] bg-gradient-to-tr from-[#fbc2eb] via-[#e91e63] to-[#9c27b0] text-white flex-shrink-0">
                   <Instagram className="w-4 h-4" strokeWidth={2.5} />
                 </div>
                 <span>@ice_austral</span>
-              </div>
+              </a>
 
-              <div className="flex items-center gap-4">
+              {/* Facebook */}
+              <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-[#1877F2] transition-colors">
                 <Facebook className="w-[22px] h-[22px] text-[#1877F2] fill-[#1877F2] flex-shrink-0" stroke="white" strokeWidth={0.5} />
                 <span>IceAustral Congelados</span>
-              </div>
+              </a>
 
             </div>
           </div>
 
-          {/* Right Column: Google Maps (Using the provided iframe) */}
+          {/* Right Column: Google Maps */}
           <div className="w-full lg:w-[55%] min-h-[400px] sm:min-h-[500px] lg:min-h-full p-4 sm:p-6 lg:p-8 lg:pl-0">
             <div className="w-full h-full rounded-[24px] overflow-hidden shadow-sm border border-white/50 bg-white">
               <iframe 

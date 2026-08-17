@@ -74,12 +74,12 @@ export default function About() {
 
             </div>
 
-            {/* Right Column: Puerto Montt Landscape Image matching screenshot */}
+            {/* Right Column: Local Store & Location Image */}
             <div className="lg:col-span-6">
-              <div className="relative w-full h-[280px] sm:h-[360px] lg:h-[420px] rounded-[20px] sm:rounded-[28px] overflow-hidden shadow-md border-2 border-white">
+              <div className="relative w-full h-[300px] sm:h-[380px] lg:h-[440px] rounded-[20px] sm:rounded-[28px] overflow-hidden shadow-md border-2 border-white">
                 <Image
-                  src="/IMAGENES/NOSOTROS.png"
-                  alt="Puerto Montt Paisaje Volcán Osorno"
+                  src="/IMAGENES/nosotros_local.jpg"
+                  alt="Ice Austral Local Comercial y Ubicación"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 50vw"

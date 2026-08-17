@@ -1,5 +1,12 @@
-﻿node_modules/
+node_modules/
 .next/
 .env
+.env*.local
+.env.local
 
 .vercel
+seed_supabase.js
+find_missing_products.js
+supabase_setup.sql
+
+
